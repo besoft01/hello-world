@@ -88,3 +88,27 @@ Want to add even more code and fun styles to your GitHub Pages website? [Follow 
 ## Everything you need to know about GitHub
 
 Getting started is the hardest part. If there’s anything you’d like to know as you get started with GitHub, try searching [GitHub Help](https://help.github.com). Our documentation has tutorials on everything from changing your repository settings to configuring GitHub from your command line.
+
+## Troubleshooting: OpenCV camera warnings on Windows
+
+If you are experimenting with OpenCV on Windows alongside this project, you may see warnings such as:
+
+```
+[ WARN:0@7.537] global cap.cpp:480 cv::VideoCapture::open VIDEOIO(DSHOW): backend is generally available but can't be used to capture by index
+[ WARN:1@7.834] global cap.cpp:480 cv::VideoCapture::open VIDEOIO(DSHOW): backend is generally available but can't be used to capture by index
+[ WARN:2@7.903] global cap.cpp:459 cv::VideoCapture::open VIDEOIO(DSHOW): raised unknown C++ exception!
+```
+
+These messages indicate that the DirectShow backend (`cv::CAP_DSHOW`) cannot access a camera using the default numeric index. To resolve the issue:
+
+1. Prefer the Microsoft Media Foundation backend (`cv::CAP_MSMF`) on modern Windows builds:
+   ```python
+   cap = cv2.VideoCapture(0, cv2.CAP_MSMF)
+   ```
+2. If you must use DirectShow, enumerate the available devices and pass an explicit `cv::CAP_DSHOW` flag:
+   ```python
+   cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+   ```
+3. Ensure no other application is holding exclusive access to the webcam, and confirm that the latest camera drivers are installed.
+
+After changing the backend or freeing the camera device, the warnings should disappear and `VideoCapture` should succeed.
